@@ -1,8 +1,11 @@
 const request = require('request'),
     cheerio = require('cheerio'),
-    jschardet = require('jschardet'),
+    js3chardet = require('jschardet'),
     iconv = require('iconv-lite');
 
+const main = () => {
+
+let tagArr = [];
 
 const getNotice = () => {
     request( {
@@ -23,7 +26,7 @@ const getNotice = () => {
 
             const $ = cheerio.load(body);
             const taglist = $("#container > div > div > div.news_board > ul > li").toArray(); //.news_board
-            const tagArr = [];
+            
             taglist.forEach((li) => {
                 const TagF = $(li).find("a").first();
                 const path = TagF.attr("href");
@@ -40,40 +43,39 @@ const getNotice = () => {
                 }
 
                 //console.log(date);
-
-                tagArr.push({
-                    url,
-                    title,
-                    date,
-                });
+                dataJson(url, title, date);
+                
             });
-            console.log(tagArr);
+            console.log(typeof tagArr);
+            console.log(tagArr[0].title);
+            const tagStr = JSON.stringify(tagArr);
+            console.log(tagStr[0].title);
+            //json이 문자열이면 정보를 읽을 수 없음.
+            dataTitle();
     });
 }
 
-getNotice();
+//getNotice();
+const dataJson = (url, title, date) => {
+	tagArr.push({"url" : url, "title" : title, "date" : date});
+	}
 
-/*
-const url = "https://maplestory.nexon.com/News/Notice";
-request(url, function (err, res, body) {
-    try {
-        const WTFtext = jschardet.detect(body);
-        const $ = cheerio.load(body);
-        //console.log(body);
-        let classTag = $('#container > div > div > div > ul > li');
+const dataTitle = () => {
+	let count = 0;
+	console.log("공지사항");
+	for(let i = 0; i < tagArr.length; i++) {
+		count++;
+		console.log(`${count}. ${tagArr[i].title}\n   ${tagArr[i].url}\n   작성일: ${tagArr[i].date}`);
+		}
+		}
 
-        console.log(WTFtext);
-        console.log("해치웠나? "+classTag.length);
-        //console.log(classTag);
+const newTest = () => {
+	getNotice();
+	console.log(`"시험"+${tagArr}`);
+	//함수공간을 떠나면 변수정보 초기화
+	}
+	newTest();
+	}
 
-        for(let i = 0; i < classTag.length; i++) {
-            tagArr.push(classTag.eq[i].getText());
-        }
-        console.log(tagArr);
-        console.log(JSON.stringify(tagArr));
-    }
-        catch (err) {
-            console.log(err);
-        }
-    });
- */
+main();
+//함수로 묶어봤지만 역시 초기화됨
